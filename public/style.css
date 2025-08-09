@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
 :root {
-  --color-bg: #0f172a;
-  --color-bg-alt: #1e293b;
+  --color-bg-start: #0f172a;
+  --color-bg-end: #1e293b;
   --color-primary: #4ade80;
   --color-error: #f87171;
   --color-text: #e0e7ff;
@@ -12,30 +12,47 @@
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
   height: 100vh;
-  background: linear-gradient(135deg, var(--color-bg), var(--color-bg-alt));
-  color: var(--color-text);
   font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, var(--color-bg-start), var(--color-bg-end));
+  color: var(--color-text);
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  overflow: hidden;
+  perspective: 1000px;
+  background-attachment: fixed;
+  background-size: cover;
+  animation: bgMove 30s linear infinite alternate;
+}
+
+@keyframes bgMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
 }
 
 .container {
+  position: relative;
+  width: 360px;
+  max-width: 100%;
   background: rgba(30, 41, 59, 0.85);
   padding: 2.5rem 3rem;
   border-radius: 20px;
   box-shadow: 0 15px 35px var(--color-shadow);
-  width: 360px;
-  max-width: 100%;
   text-align: center;
   animation: fadeInScale 0.8s ease forwards;
+  overflow: visible;
+  user-select: none;
 }
 
 .title {
@@ -44,7 +61,10 @@ body {
   margin-bottom: 1.5rem;
   letter-spacing: 1.5px;
   user-select: none;
-  text-shadow: 0 0 10px var(--color-primary);
+  text-shadow: 0 0 15px var(--color-primary);
+  color: #a6f7b5;
+  filter: drop-shadow(0 0 6px var(--color-primary));
+  transform-style: preserve-3d;
 }
 
 .status {
@@ -53,13 +73,15 @@ body {
   margin: 1rem 0 0.5rem;
   padding: 1rem 0;
   border-radius: 14px;
-  user-select: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.8rem;
-  transition: background var(--transition), color var(--transition), transform 0.3s ease;
+  gap: 1rem;
   box-shadow: 0 0 15px transparent;
+  transition: background var(--transition), color var(--transition), transform 0.3s ease;
+  user-select: none;
+  cursor: default;
+  filter: drop-shadow(0 0 10px transparent);
 }
 
 .status.loading {
@@ -67,17 +89,23 @@ body {
 }
 
 .status.online {
-  background: rgba(74, 222, 128, 0.15);
+  background: rgba(74, 222, 128, 0.18);
   color: var(--color-primary);
-  box-shadow: 0 0 25px var(--color-primary);
-  transform: scale(1.05);
+  box-shadow: 0 0 35px var(--color-primary);
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 10px var(--color-primary));
 }
 
 .status.offline {
-  background: rgba(248, 113, 113, 0.15);
+  background: rgba(248, 113, 113, 0.18);
   color: var(--color-error);
-  box-shadow: 0 0 25px var(--color-error);
+  box-shadow: 0 0 35px var(--color-error);
   transform: scale(1);
+  filter: drop-shadow(0 0 10px var(--color-error));
+}
+
+.status-text {
+  user-select: none;
 }
 
 .players {
@@ -85,32 +113,63 @@ body {
   font-weight: 400;
   color: var(--color-text);
   margin-top: 0.8rem;
-  user-select: none;
   min-height: 24px;
+  user-select: none;
+  filter: drop-shadow(0 0 8px rgba(0,0,0,0.6));
 }
 
-.footer {
-  margin-top: 2rem;
-  font-size: 0.9rem;
-  font-weight: 400;
+.countdown {
+  margin-top: 1.8rem;
+  font-size: 1.15rem;
   color: var(--color-text);
-  opacity: 0.7;
+  font-weight: 600;
   user-select: none;
+  filter: drop-shadow(0 0 8px rgba(0,0,0,0.7));
+  letter-spacing: 0.03em;
 }
+
+/* Loader SVG */
 
 .loader {
-  width: 18px;
-  height: 18px;
-  border: 3.5px solid transparent;
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1.2s linear infinite;
+  width: 36px;
+  height: 36px;
+  animation: rotate 1.4s linear infinite;
 }
 
-/* Animations */
+.loader-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.15);
+  stroke-width: 4;
+}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.loader-fg {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 125;
+  stroke-dashoffset: 0;
+  animation: dash 1.4s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 125;
+  }
+  50% {
+    stroke-dashoffset: 30;
+    transform: rotate(45deg);
+  }
+  100% {
+    stroke-dashoffset: 125;
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeInScale {
@@ -121,5 +180,51 @@ body {
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+/* Confetti */
+
+#confetti-container {
+  pointer-events: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  overflow: visible;
+  z-index: 9999;
+}
+
+.confetti {
+  position: fixed;
+  width: 8px;
+  height: 14px;
+  opacity: 0.9;
+  background-color: #4ade80;
+  top: -20px;
+  animation-name: confettiFall, confettiSwing;
+  animation-duration: 4s, 2s;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: 1, infinite;
+  animation-fill-mode: forwards;
+  border-radius: 2px;
+  will-change: transform, opacity;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes confettiSwing {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(15px);
   }
 }

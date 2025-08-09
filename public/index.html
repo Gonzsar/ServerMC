@@ -8,16 +8,28 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div id="confetti-container"></div>
+
   <main class="container">
     <h1 class="title">Servidor Minecraft</h1>
-    <div id="status" class="status loading">
-      <span class="loader"></span> Cargando...
+
+    <div id="status" class="status loading" aria-live="polite" aria-atomic="true">
+      <svg class="loader" viewBox="0 0 50 50">
+        <circle class="loader-bg" cx="25" cy="25" r="20" />
+        <circle class="loader-fg" cx="25" cy="25" r="20" />
+      </svg>
+      <span class="status-text">Cargando...</span>
     </div>
+
     <div id="players" class="players"></div>
+
+    <div id="countdown" class="countdown"></div>
+
     <footer class="footer">
       <p>Horario de apertura: <strong>13:00 - 03:00</strong></p>
     </footer>
   </main>
+
   <script src="script.js"></script>
 </body>
 </html>
