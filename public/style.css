@@ -1,45 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+:root {
+  --color-bg: #0f172a;
+  --color-bg-alt: #1e293b;
+  --color-primary: #4ade80;
+  --color-error: #f87171;
+  --color-text: #e0e7ff;
+  --color-shadow: rgba(0, 0, 0, 0.4);
+  --transition: 0.4s ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  font-family: 'Segoe UI', sans-serif;
-  color: white;
-  text-align: center;
-  padding: 2rem;
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, var(--color-bg), var(--color-bg-alt));
+  color: var(--color-text);
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow: hidden;
 }
 
 .container {
-  max-width: 400px;
-  margin: auto;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  background: rgba(30, 41, 59, 0.85);
+  padding: 2.5rem 3rem;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px var(--color-shadow);
+  width: 360px;
+  max-width: 100%;
+  text-align: center;
+  animation: fadeInScale 0.8s ease forwards;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 2.3rem;
+  margin-bottom: 1.5rem;
+  letter-spacing: 1.5px;
+  user-select: none;
+  text-shadow: 0 0 10px var(--color-primary);
 }
 
 .status {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 1rem 0;
-  padding: 0.5rem;
-  border-radius: 8px;
-  transition: background 0.5s, transform 0.3s;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+  padding: 1rem 0;
+  border-radius: 14px;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  transition: background var(--transition), color var(--transition), transform 0.3s ease;
+  box-shadow: 0 0 15px transparent;
+}
+
+.status.loading {
+  color: var(--color-text);
 }
 
 .status.online {
-  background: rgba(34, 197, 94, 0.2);
-  color: #4ade80;
+  background: rgba(74, 222, 128, 0.15);
+  color: var(--color-primary);
+  box-shadow: 0 0 25px var(--color-primary);
+  transform: scale(1.05);
 }
 
 .status.offline {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
+  background: rgba(248, 113, 113, 0.15);
+  color: var(--color-error);
+  box-shadow: 0 0 25px var(--color-error);
+  transform: scale(1);
 }
 
 .players {
-  font-size: 1rem;
-  margin-top: 1rem;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--color-text);
+  margin-top: 0.8rem;
+  user-select: none;
+  min-height: 24px;
 }
 
-#schedule {
-  margin-top: 1rem;
-  font-style: italic;
+.footer {
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--color-text);
+  opacity: 0.7;
+  user-select: none;
+}
+
+.loader {
+  width: 18px;
+  height: 18px;
+  border: 3.5px solid transparent;
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+}
+
+/* Animations */
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

@@ -2,17 +2,22 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Status Minecraft</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Estado del Servidor Minecraft</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>Estado del Servidor</h1>
-    <div id="status" class="status">Cargando...</div>
+  <main class="container">
+    <h1 class="title">Servidor Minecraft</h1>
+    <div id="status" class="status loading">
+      <span class="loader"></span> Cargando...
+    </div>
     <div id="players" class="players"></div>
-    <div id="schedule">Horario: 13:00 - 03:00</div>
-  </div>
+    <footer class="footer">
+      <p>Horario de apertura: <strong>13:00 - 03:00</strong></p>
+    </footer>
+  </main>
   <script src="script.js"></script>
 </body>
 </html>

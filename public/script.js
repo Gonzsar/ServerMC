@@ -1,25 +1,27 @@
-async function checkStatus() {
+async function fetchStatus() {
+  const statusEl = document.getElementById('status');
+  const playersEl = document.getElementById('players');
+
   try {
     const res = await fetch('/status');
     const data = await res.json();
 
-    const statusDiv = document.getElementById('status');
-    const playersDiv = document.getElementById('players');
-
     if (data.online) {
-      statusDiv.textContent = '🟢 Servidor en línea';
-      statusDiv.className = 'status online';
-      playersDiv.textContent = `Jugadores: ${data.players.online}/${data.players.max}`;
+      statusEl.textContent = '✅ Servidor en línea';
+      statusEl.className = 'status online';
+      playersEl.textContent = `Jugadores conectados: ${data.players ?? 'N/A'}`;
     } else {
-      statusDiv.textContent = '🔴 Servidor fuera de línea';
-      statusDiv.className = 'status offline';
-      playersDiv.textContent = '';
+      statusEl.textContent = '❌ Servidor fuera de servicio';
+      statusEl.className = 'status offline';
+      playersEl.textContent = data.reason || '';
     }
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    statusEl.textContent = '⚠️ Error al obtener estado';
+    statusEl.className = 'status offline';
+    playersEl.textContent = '';
   }
 }
 
-// Refrescar cada 10 segundos
-setInterval(checkStatus, 10000);
-checkStatus();
+// Actualiza cada 7 segundos
+setInterval(fetchStatus, 7000);
+fetchStatus();
