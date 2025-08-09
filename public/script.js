@@ -4,6 +4,7 @@ const countdownEl = document.getElementById('countdown');
 const clockEl = document.getElementById('clock');
 const confettiContainer = document.getElementById('confetti-container');
 const audio = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
+const serverTitle = document.getElementById('server-title');
 
 let lastStatusOnline = false;
 let firstRun = true;
@@ -136,12 +137,21 @@ function fetchStatus() {
     statusEl.className = 'status online';
     statusEl.querySelector('.status-text').innerHTML = '<span class="pulse">🟢</span> ONLINE';
     playersEl.textContent = '🎮 Vení a jugar gil';
+
+    // Cambiar título a verde
+    serverTitle.style.color = 'var(--color-primary)';
+    serverTitle.style.textShadow = '0 0 10px var(--color-primary)';
+    
   } else {
     if (lastStatusOnline) notifyOffline();
     lastStatusOnline = false;
     statusEl.className = 'status offline';
     statusEl.querySelector('.status-text').innerHTML = '<span class="pulse">🔴</span> OFFLINE';
     playersEl.textContent = 'Fuiste, ta cerrado';
+
+    // Cambiar título a rojo
+    serverTitle.style.color = 'var(--color-error)';
+    serverTitle.style.textShadow = '0 0 10px var(--color-error)';
   }
 
   firstRun = false;
