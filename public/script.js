@@ -1,73 +1,106 @@
 const statusEl = document.getElementById('status');
 const playersEl = document.getElementById('players');
 const countdownEl = document.getElementById('countdown');
+const pulseEl = document.querySelector('.pulse-indicator');
 const confettiContainer = document.getElementById('confetti-container');
 
 let confettiActive = false;
+let prevTime = "";
 
-function createConfetti() {
-  const colors = ['#4ade80', '#22c55e', '#16a34a', '#bbf7d0', '#86efac'];
-  const confettiCount = 30;
+// Crear estructura flip clock
+function initFlipClock() {
+  countdownEl.innerHTML = `
+    <div class="flip-group" id="hours">
+      <div class="flip-digit"><div class="flip-card current">0</div><div class="flip-card next">0</div></div>
+      <div class="flip-digit"><div class="flip-card current">0</div><div class="flip-card next">0</div></div>
+    </div>
+    <div class="flip-separator">:</div>
+    <div class="flip-group" id="minutes">
+      <div class="flip-digit"><div class="flip-card current">0</div><div class="flip-card next">0</div></div>
+      <div class="flip-digit"><div class="flip-card current">0</div><div class="flip-card next">0</div></div>
+    </div>
+    <div class="flip-separator">:</div>
+    <div class="flip-group" id="seconds">
+      <div class="flip-digit"><div class="flip-card current">0</div><div class="flip-card next">0</div></div>
+      <div class="flip-digit"><div class="flip-card current">0</div><div class="flip-card next">0</div></div>
+    </div>
+  `;
+}
 
-  for (let i = 0; i < confettiCount; i++) {
-    const confetti = document.createElement('div');
-    confetti.classList.add('confetti');
-    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-    confetti.style.left = Math.random() * 100 + 'vw';
-    confetti.style.animationDelay = (Math.random() * 1.5) + 's';
-    confetti.style.opacity = 0.9;
-    confettiContainer.appendChild(confetti);
-  }
+function flipDigit(groupId, index, newNumber) {
+  const group = document.getElementById(groupId);
+  const digit = group.children[index];
+  const currentCard = digit.querySelector('.current');
+  const nextCard = digit.querySelector('.next');
+
+  if (currentCard.textContent == newNumber) return;
+
+  nextCard.textContent = newNumber;
+  currentCard.classList.add('flip-animate');
 
   setTimeout(() => {
-    confettiContainer.innerHTML = '';
-    confettiActive = false;
-  }, 5000);
+    currentCard.textContent = newNumber;
+    currentCard.classList.remove('flip-animate');
+  }, 300);
 }
 
 function updateCountdown() {
   const now = new Date();
+  const openHour = 13;
+  const closeHour = 3;
 
-  // Horario abierto: 13:00 - 03:00 (del día siguiente)
-  let openHour = 13;
-  let closeHour = 3;
-  
-  let openTime = new Date(now);
+  const openTime = new Date(now);
   openTime.setHours(openHour, 0, 0, 0);
 
-  let closeTime = new Date(now);
-  // Si la hora actual es antes de 3 AM, el cierre es el mismo día (mañana)
-  if (now.getHours() < closeHour) {
-    closeTime.setDate(closeTime.getDate());
-  } else {
-    // Si es después de 3 AM, el cierre es el día siguiente
-    closeTime.setDate(closeTime.getDate() + 1);
-  }
+  const closeTime = new Date(now);
+  if (now.getHours() < closeHour) closeTime.setDate(closeTime.getDate());
+  else closeTime.setDate(closeTime.getDate() + 1);
   closeTime.setHours(closeHour, 0, 0, 0);
 
-  let diff, message;
-
+  let diff;
   if (now < openTime) {
     diff = openTime - now;
-    message = `Abre en: ${formatDuration(diff)}`;
+    pulseEl.style.background = "grey";
   } else if (now >= openTime && now < closeTime) {
     diff = closeTime - now;
-    message = `Cierra en: ${formatDuration(diff)}`;
+    pulseEl.style.background = "var(--online-color)";
   } else {
-    // Si estamos entre 3am y 13pm, está cerrado
-    diff = openTime.getTime() + 86400000 - now.getTime(); // para el siguiente día
-    message = `Abre en: ${formatDuration(diff)}`;
+    diff = openTime.getTime() + 86400000 - now.getTime();
+    pulseEl.style.background = "grey";
   }
 
-  countdownEl.textContent = message;
+  const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+  const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+  const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+  const newTime = h + m + s;
+
+  if (prevTime) {
+    if (newTime[0] !== prevTime[0]) flipDigit('hours', 0, newTime[0]);
+    if (newTime[1] !== prevTime[1]) flipDigit('hours', 1, newTime[1]);
+    if (newTime[2] !== prevTime[2]) flipDigit('minutes', 0, newTime[2]);
+    if (newTime[3] !== prevTime[3]) flipDigit('minutes', 1, newTime[3]);
+    if (newTime[4] !== prevTime[4]) flipDigit('seconds', 0, newTime[4]);
+    if (newTime[5] !== prevTime[5]) flipDigit('seconds', 1, newTime[5]);
+  }
+
+  prevTime = newTime;
 }
 
-function formatDuration(ms) {
-  let totalSeconds = Math.floor(ms / 1000);
-  let h = Math.floor(totalSeconds / 3600);
-  let m = Math.floor((totalSeconds % 3600) / 60);
-  let s = totalSeconds % 60;
-  return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+function createConfetti() {
+  const colors = ['#4ade80', '#22c55e', '#16a34a', '#bbf7d0', '#86efac', '#fff176', '#81d4fa'];
+  const shapes = ['circle', 'square'];
+  const count = 40;
+
+  for (let i = 0; i < count; i++) {
+    const div = document.createElement('div');
+    div.classList.add('confetti');
+    div.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    div.style.left = Math.random() * 100 + 'vw';
+    div.style.animationDuration = 2 + Math.random() * 3 + 's';
+    div.style.borderRadius = shapes[Math.floor(Math.random()*shapes.length)] === 'circle' ? '50%' : '0';
+    confettiContainer.appendChild(div);
+    setTimeout(() => div.remove(), 5000);
+  }
 }
 
 async function fetchStatus() {
@@ -76,26 +109,27 @@ async function fetchStatus() {
     const data = await res.json();
 
     if (data.online) {
+      statusEl.className = 'status online';
+      statusEl.querySelector('.status-text').textContent = '✅ Servidor en línea';
+      playersEl.textContent = `👥 Jugadores: ${data.players ?? 'N/A'}`;
       if (!confettiActive) {
         createConfetti();
         confettiActive = true;
       }
-      statusEl.className = 'status online';
-      statusEl.querySelector('.status-text').textContent = '✅ Servidor en línea';
-      playersEl.textContent = `Jugadores conectados: ${data.players ?? 'N/A'}`;
+      document.body.style.background = 'linear-gradient(135deg, #0f172a, #1a4d2e)';
     } else {
       statusEl.className = 'status offline';
-      statusEl.querySelector('.status-text').textContent = '❌ Servidor fuera de servicio';
-      playersEl.textContent = data.reason || '';
-      confettiContainer.innerHTML = '';
+      statusEl.querySelector('.status-text').textContent = '❌ Servidor offline';
+      playersEl.textContent = '';
       confettiActive = false;
+      document.body.style.background = 'var(--bg-dark)';
     }
   } catch {
     statusEl.className = 'status offline';
     statusEl.querySelector('.status-text').textContent = '⚠️ Error al obtener estado';
     playersEl.textContent = '';
-    confettiContainer.innerHTML = '';
     confettiActive = false;
+    document.body.style.background = 'var(--bg-dark)';
   }
 }
 
@@ -104,5 +138,6 @@ function loop() {
   fetchStatus();
 }
 
-setInterval(loop, 7000);
+initFlipClock();
+setInterval(loop, 1000);
 loop();
