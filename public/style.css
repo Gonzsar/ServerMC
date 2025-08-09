@@ -1,151 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
 :root {
-  --online-color: #4ade80;
-  --offline-color: #f87171;
-  --bg-dark: #0f172a;
+  --color-bg-start: #0f172a;
+  --color-bg-end: #1e293b;
+  --color-primary: #4ade80;
+  --color-error: #f87171;
+  --color-text: #e0e7ff;
+  --shadow: rgba(0, 0, 0, 0.4);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
-  background: var(--bg-dark);
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   height: 100vh;
-  transition: background 1s ease;
+  font-family: 'Poppins', sans-serif;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--color-bg-start), var(--color-bg-end));
+}
+
+#particles {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
 }
 
 .container {
+  position: relative;
+  z-index: 2;
+  width: 480px;
+  max-width: 95%;
+  background: rgba(30, 41, 59, 0.9);
+  padding: 3rem 3rem;
+  border-radius: 24px;
+  box-shadow: 0 20px 45px var(--shadow);
   text-align: center;
-  padding: 2rem;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
   animation: fadeIn 0.8s ease forwards;
-  min-width: 300px;
 }
 
 .title {
-  font-size: 2rem;
-  margin-bottom: 1rem;
+  font-size: 2.8rem;
+  font-weight: 600;
+  margin-bottom: 0.1.2rem;
+  color: var(--color-primary);
+  text-shadow: 0 0 10px var(--color-primary);
 }
 
-.pulse-indicator {
-  width: 16px;
-  height: 16px;
-  margin: 0 auto 1rem;
-  border-radius: 50%;
-  background: grey;
-  animation: pulse 1.5s infinite;
+.clock {
+  font-size: 1.6rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
 }
 
 .status {
-  padding: 1rem;
-  font-size: 1.2rem;
-  font-weight: bold;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  transition: all 0.4s ease;
+  font-size: 1.6rem; /* más grande */
+  padding: 1.2rem 1rem;
+  margin-bottom: 1.8rem; /* más espacio abajo para el countdown */
+  border-radius: 16px;
+  cursor: default;
+  transition: all 0.4s ease, transform 0.3s ease;
+  user-select: none;
 }
 
 .status.online {
   background: rgba(74, 222, 128, 0.15);
-  color: var(--online-color);
-  box-shadow: 0 0 20px var(--online-color);
+  color: var(--color-primary);
+  box-shadow: 0 0 25px var(--color-primary);
+  animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+.status.online:hover {
+  box-shadow:
+    0 0 40px var(--color-primary),
+    0 0 60px var(--color-primary);
+  transform: scale(1.07) rotate(-2deg);
+  filter: drop-shadow(0 0 12px var(--color-primary));
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .status.offline {
   background: rgba(248, 113, 113, 0.15);
-  color: var(--offline-color);
-  box-shadow: 0 0 20px var(--offline-color);
+  color: var(--color-error);
+  box-shadow: 0 0 25px var(--color-error);
+  animation: vibrate 0.3s infinite;
 }
 
-.players {
-  font-size: 1rem;
-  margin-bottom: 1rem;
+.status.offline:hover {
+  box-shadow:
+    0 0 35px var(--color-error),
+    0 0 50px var(--color-error);
+  transform: scale(1.05) rotate(2deg);
+  filter: drop-shadow(0 0 10px var(--color-error));
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.countdown {
-  font-size: 1.4rem;
-  font-weight: bold;
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  background: rgba(255,255,255,0.05);
-  border-radius: 10px;
-  animation: fadeIn 0.6s ease;
+.players, .countdown {
+  margin-top: 0.5rem;
+  font-size: 1.05rem;
+  opacity: 0.9;
 }
 
 .footer {
   margin-top: 1.5rem;
   font-size: 0.9rem;
-  opacity: 0.8;
+  opacity: 0.75;
 }
 
-/* Animaciones */
 @keyframes fadeIn {
-  from {opacity: 0; transform: scale(0.9);}
-  to {opacity: 1; transform: scale(1);}
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-@keyframes pulse {
-  0% {transform: scale(1); opacity: 1;}
-  50% {transform: scale(1.3); opacity: 0.6;}
-  100% {transform: scale(1); opacity: 1;}
+.confetti {
+  position: fixed;
+  width: 8px;
+  height: 14px;
+  background-color: var(--color-primary);
+  top: -20px;
+  border-radius: 2px;
+  animation: confettiFall 3s linear forwards;
 }
 
-/* Flip Clock */
-.flip-clock {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.flip-group {
-  display: flex;
-  gap: 0.15rem;
-}
-
-.flip-digit {
-  position: relative;
-  width: 40px;
-  height: 60px;
-  perspective: 300px;
-}
-
-.flip-card {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  transform-origin: bottom;
-  background: rgba(0,0,0,0.4);
-  border-radius: 6px;
-  color: white;
-  font-size: 2rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.flip-card.next {
-  transform-origin: top;
-}
-
-.flip-animate {
-  animation: flip 0.6s forwards;
-}
-
-@keyframes flip {
-  0% { transform: rotateX(0deg); }
-  100% { transform: rotateX(-180deg); }
-}
-
-/* Separador ":" */
-.flip-separator {
-  font-size: 2rem;
-  font-weight: bold;
-  align-self: center;
-  opacity: 0.7;
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }

@@ -1,143 +1,180 @@
+// ===== CONFIGURACIÓN =====
+const MC_SERVER_IP = "26.46.250.85"; // Cambia por tu IP o dominio
+const MC_SERVER_PORT = 25565; // Cambia si tu server usa otro puerto
+
 const statusEl = document.getElementById('status');
 const playersEl = document.getElementById('players');
 const countdownEl = document.getElementById('countdown');
-const pulseEl = document.querySelector('.pulse-indicator');
+const clockEl = document.getElementById('clock');
 const confettiContainer = document.getElementById('confetti-container');
+const audio = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
 
-let confettiActive = false;
-let prevTime = "";
 
-// Crear estructura flip clock
-function initFlipClock() {
-  countdownEl.innerHTML = `
-    <div class="flip-group" id="hours">
-      <div class="flip-digit"><div class="flip-card current">0</div><div class="flip-card next">0</div></div>
-      <div class="flip-digit"><div class="flip-card current">0</div><div class="flip-card next">0</div></div>
-    </div>
-    <div class="flip-separator">:</div>
-    <div class="flip-group" id="minutes">
-      <div class="flip-digit"><div class="flip-card current">0</div><div class="flip-card next">0</div></div>
-      <div class="flip-digit"><div class="flip-card current">0</div><div class="flip-card next">0</div></div>
-    </div>
-    <div class="flip-separator">:</div>
-    <div class="flip-group" id="seconds">
-      <div class="flip-digit"><div class="flip-card current">0</div><div class="flip-card next">0</div></div>
-      <div class="flip-digit"><div class="flip-card current">0</div><div class="flip-card next">0</div></div>
-    </div>
-  `;
+let lastStatusOnline = false;
+
+async function fetchStatus() {
+  try {
+    const res = await fetch(`/status`);
+    const data = await res.json();
+
+    if (data.online) {
+      if (!lastStatusOnline) {
+        audio.play();
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("Servidor Minecraft está ONLINE 🎉");
+        }
+      }
+      lastStatusOnline = true;
+      // ... tu código actual para mostrar online
+    } else {
+      if (lastStatusOnline) {
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("Servidor Minecraft está OFFLINE");
+        }
+      }
+      lastStatusOnline = false;
+      // ... tu código actual para mostrar offline
+    }
+  } catch {
+    // ...
+  }
 }
 
-function flipDigit(groupId, index, newNumber) {
-  const group = document.getElementById(groupId);
-  const digit = group.children[index];
-  const currentCard = digit.querySelector('.current');
-  const nextCard = digit.querySelector('.next');
+// Pedir permiso de notificaciones al cargar
+if ("Notification" in window && Notification.permission !== "granted") {
+  Notification.requestPermission();
+}
 
-  if (currentCard.textContent == newNumber) return;
 
-  nextCard.textContent = newNumber;
-  currentCard.classList.add('flip-animate');
+// === Reloj en vivo ===
+function updateClock() {
+  const now = new Date();
+  clockEl.textContent = now.toLocaleTimeString('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+}
 
-  setTimeout(() => {
-    currentCard.textContent = newNumber;
-    currentCard.classList.remove('flip-animate');
-  }, 300);
+// === Confeti cuando el server está online ===
+function createConfetti() {
+  for (let i = 0; i < 30; i++) {
+    const confetti = document.createElement('div');
+    confetti.classList.add('confetti');
+    confetti.style.left = `${Math.random() * 100}vw`;
+    confetti.style.backgroundColor = `hsl(${Math.random() * 120}, 80%, 60%)`;
+    confetti.style.animationDelay = `${Math.random()}s`;
+    confettiContainer.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 3000);
+  }
+}
+
+// === Cuenta regresiva para apertura/cierre ===
+function formatDuration(ms) {
+  let s = Math.floor(ms / 1000);
+  let h = Math.floor(s / 3600);
+  s %= 3600;
+  let m = Math.floor(s / 60);
+  s %= 60;
+  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
 function updateCountdown() {
   const now = new Date();
-  const openHour = 13;
-  const closeHour = 3;
+  const openHour = 13; // 13:00
+  const closeHour = 3; // 03:00
 
   const openTime = new Date(now);
   openTime.setHours(openHour, 0, 0, 0);
 
   const closeTime = new Date(now);
-  if (now.getHours() < closeHour) closeTime.setDate(closeTime.getDate());
-  else closeTime.setDate(closeTime.getDate() + 1);
-  closeTime.setHours(closeHour, 0, 0, 0);
+  if (now.getHours() < closeHour) {
+    closeTime.setHours(closeHour, 0, 0, 0);
+  } else {
+    closeTime.setDate(closeTime.getDate() + 1);
+    closeTime.setHours(closeHour, 0, 0, 0);
+  }
 
-  let diff;
+  let diff, msg;
   if (now < openTime) {
     diff = openTime - now;
-    pulseEl.style.background = "grey";
+    msg = `Abre en: ${formatDuration(diff)}`;
   } else if (now >= openTime && now < closeTime) {
     diff = closeTime - now;
-    pulseEl.style.background = "var(--online-color)";
+    msg = `Cierra en: ${formatDuration(diff)}`;
   } else {
     diff = openTime.getTime() + 86400000 - now.getTime();
-    pulseEl.style.background = "grey";
+    msg = `Abre en: ${formatDuration(diff)}`;
   }
 
-  const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
-  const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-  const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-  const newTime = h + m + s;
-
-  if (prevTime) {
-    if (newTime[0] !== prevTime[0]) flipDigit('hours', 0, newTime[0]);
-    if (newTime[1] !== prevTime[1]) flipDigit('hours', 1, newTime[1]);
-    if (newTime[2] !== prevTime[2]) flipDigit('minutes', 0, newTime[2]);
-    if (newTime[3] !== prevTime[3]) flipDigit('minutes', 1, newTime[3]);
-    if (newTime[4] !== prevTime[4]) flipDigit('seconds', 0, newTime[4]);
-    if (newTime[5] !== prevTime[5]) flipDigit('seconds', 1, newTime[5]);
-  }
-
-  prevTime = newTime;
+  countdownEl.textContent = msg;
 }
 
-function createConfetti() {
-  const colors = ['#4ade80', '#22c55e', '#16a34a', '#bbf7d0', '#86efac', '#fff176', '#81d4fa'];
-  const shapes = ['circle', 'square'];
-  const count = 40;
-
-  for (let i = 0; i < count; i++) {
-    const div = document.createElement('div');
-    div.classList.add('confetti');
-    div.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-    div.style.left = Math.random() * 100 + 'vw';
-    div.style.animationDuration = 2 + Math.random() * 3 + 's';
-    div.style.borderRadius = shapes[Math.floor(Math.random()*shapes.length)] === 'circle' ? '50%' : '0';
-    confettiContainer.appendChild(div);
-    setTimeout(() => div.remove(), 5000);
-  }
-}
-
+// === Consulta estado del servidor Minecraft ===
 async function fetchStatus() {
   try {
-    const res = await fetch('/status');
+    const res = await fetch(`https://api.mcsrvstat.us/2/${MC_SERVER_IP}:${MC_SERVER_PORT}`);
     const data = await res.json();
 
     if (data.online) {
       statusEl.className = 'status online';
-      statusEl.querySelector('.status-text').textContent = '✅ Servidor en línea';
-      playersEl.textContent = `👥 Jugadores: ${data.players ?? 'N/A'}`;
-      if (!confettiActive) {
-        createConfetti();
-        confettiActive = true;
-      }
-      document.body.style.background = 'linear-gradient(135deg, #0f172a, #1a4d2e)';
+      statusEl.querySelector('.status-text').textContent = '✅ En línea';
+      playersEl.textContent = `Jugadores: ${data.players?.online ?? 0} / ${data.players?.max ?? "?"}`;
+      createConfetti();
     } else {
       statusEl.className = 'status offline';
-      statusEl.querySelector('.status-text').textContent = '❌ Servidor offline';
+      statusEl.querySelector('.status-text').textContent = '❌ Offline';
       playersEl.textContent = '';
-      confettiActive = false;
-      document.body.style.background = 'var(--bg-dark)';
     }
-  } catch {
+  } catch (err) {
     statusEl.className = 'status offline';
-    statusEl.querySelector('.status-text').textContent = '⚠️ Error al obtener estado';
+    statusEl.querySelector('.status-text').textContent = '⚠️ Error';
     playersEl.textContent = '';
-    confettiActive = false;
-    document.body.style.background = 'var(--bg-dark)';
   }
 }
 
-function loop() {
-  updateCountdown();
-  fetchStatus();
+// === Partículas de fondo ===
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+for (let i = 0; i < 50; i++) {
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 2 + 1,
+    speedX: (Math.random() - 0.5) * 0.5,
+    speedY: (Math.random() - 0.5) * 0.5
+  });
 }
 
-initFlipClock();
-setInterval(loop, 1000);
-loop();
+function drawParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+    p.x += p.speedX;
+    p.y += p.speedY;
+    if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+  });
+  requestAnimationFrame(drawParticles);
+}
+
+// === Intervalos ===
+// Reloj y cuenta regresiva: 1s
+setInterval(() => {
+  updateCountdown();
+}, 1000);
+
+// Estado del servidor: 5s
+setInterval(fetchStatus, 5000);
+
+// Primera ejecución inmediata
+updateCountdown();
+fetchStatus();
+drawParticles();
