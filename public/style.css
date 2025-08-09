@@ -61,19 +61,22 @@ body {
 }
 
 .status {
-  font-size: 1.6rem; /* más grande */
-  padding: 1.2rem 1rem;
-  margin-bottom: 1.8rem; /* más espacio abajo para el countdown */
+  font-size: 2.2rem; /* más grande */
+  font-weight: 700; /* más grueso */
+  letter-spacing: 1px;
+  padding: 1.4rem 1rem;
+  margin-bottom: 1.8rem;
   border-radius: 16px;
   cursor: default;
-  transition: all 0.4s ease, transform 0.3s ease;
   user-select: none;
+  transition: all 0.4s ease, transform 0.3s ease;
 }
 
 .status.online {
   background: rgba(74, 222, 128, 0.15);
   color: var(--color-primary);
-  box-shadow: 0 0 25px var(--color-primary);
+  text-shadow: 0 0 15px var(--color-primary), 0 0 25px var(--color-primary);
+  box-shadow: 0 0 35px var(--color-primary);
   animation: glow 1.5s ease-in-out infinite alternate;
 }
 
@@ -89,7 +92,8 @@ body {
 .status.offline {
   background: rgba(248, 113, 113, 0.15);
   color: var(--color-error);
-  box-shadow: 0 0 25px var(--color-error);
+  text-shadow: 0 0 15px var(--color-error), 0 0 25px var(--color-error);
+  box-shadow: 0 0 35px var(--color-error);
   animation: vibrate 0.3s infinite;
 }
 
@@ -132,4 +136,20 @@ body {
 @keyframes confettiFall {
   0% { transform: translateY(0) rotate(0deg); }
   100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes glow {
+  from { text-shadow: 0 0 10px var(--color-primary), 0 0 20px var(--color-primary); }
+  to   { text-shadow: 0 0 20px var(--color-primary), 0 0 35px var(--color-primary); }
+}
+
+.pulse {
+  display: inline-block;
+  animation: pulseAnim 1s infinite;
+}
+
+@keyframes pulseAnim {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
